@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  database:
+    image: mysql
+    container_name: database
+    enviroment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: events
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - 3306:3306
+    volumes:
+      - databaseData:/var/lib/mysql
+    networks:
+      - backendNetwork
+
+  springBoot:
+    image: openjdk:10-jre-slim
+    container_name: springapi
+    ports:
+      - 8080:8080
+    depends_on:
+      -database
+    volumes:
+      - ./attendee/target/...-SNAPSHOT.jar:/application.jar
+    command: ["java", "-jar", "application.jar"]
+    networks:
+    - backendNetwork
