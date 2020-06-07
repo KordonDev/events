@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>de.kordondev</groupId>
-	<artifactId>attendee</artifactId>
+	<artifactId>lager-melder-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>attendee</name>
-	<description>Demo project for Spring Boot</description>
+	<name>lager-melder-backend</name>
+	<description>Project to organize a tent camp</description>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -139,9 +139,9 @@
 						<image>openjdk:alpine</image>
 					</from>
 					<to>
-						<image>localhost:5000/lager-melder:built-with-jib</image>
+						<image>registry.hub.docker.com/kordondev/lager-melder</image>
 					</to>
-					<allowInsecureRegistries>true</allowInsecureRegistries>
+					<allowInsecureRegistries>false</allowInsecureRegistries>
 				</configuration>
 			</plugin>
 		</plugins>
