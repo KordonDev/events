@@ -1,0 +1,28 @@
+version: '3.6'
+
+services:
+  database:
+    image: "mysql"
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=attendee
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
+      - MYSQL_ROOT_PASSWORD=secRET
+    networks:
+      - database
+
+  backend:
+    image: "kordondev/lager-melder"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    networks:
+      - database
+
+networks:
+  database:
+    driver: bridge
+
