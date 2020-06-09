@@ -142,6 +142,17 @@
 						<image>registry.hub.docker.com/kordondev/lager-melder</image>
 					</to>
 					<allowInsecureRegistries>false</allowInsecureRegistries>
+					<extraDirectories>
+						<paths>
+							<path>src/main/jib</path>
+						</paths>
+						<permissions>
+							<permission>
+								<file>wait-for.sh</file>
+								<mode>755</mode>
+							</permission>
+						</permissions>
+					</extraDirectories>
 				</configuration>
 			</plugin>
 		</plugins>
