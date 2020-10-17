@@ -7,6 +7,9 @@ import de.kordondev.attendee.core.persistence.repository.UserRepository
 import de.kordondev.attendee.core.security.SecurityConstants.HEADER_STRING
 import de.kordondev.attendee.core.security.SecurityConstants.SECRET
 import de.kordondev.attendee.core.security.SecurityConstants.TOKEN_PREFIX
+import de.kordondev.attendee.core.security.SecurityConstants.USER_ID_PREFIX
+import de.kordondev.attendee.core.security.SecurityConstants.DEPARTMENT_ID_PREFIX
+import de.kordondev.attendee.core.security.SecurityConstants.ROLE_PREFIX
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -52,8 +55,10 @@ class JWTAuthorizationFilter(
                                 user.userName,
                                 null,
                                 listOf(
-                                        SimpleGrantedAuthority(user.department.id.toString()),
-                                        SimpleGrantedAuthority(user.role.toString())
+                                        // PREFIX ME
+                                        SimpleGrantedAuthority(USER_ID_PREFIX + user.id.toString()),
+                                        SimpleGrantedAuthority(DEPARTMENT_ID_PREFIX + user.department.id.toString()),
+                                        SimpleGrantedAuthority(ROLE_PREFIX + user.role.toString())
                                 )
                             )
                         }

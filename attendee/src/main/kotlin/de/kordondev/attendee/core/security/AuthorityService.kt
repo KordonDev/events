@@ -3,7 +3,11 @@ package de.kordondev.attendee.core.security
 import de.kordondev.attendee.core.model.Attendee
 import de.kordondev.attendee.core.model.Department
 import de.kordondev.attendee.core.model.NewAttendee
+import de.kordondev.attendee.core.model.User
 import de.kordondev.attendee.core.persistence.entry.Roles
+import de.kordondev.attendee.core.security.SecurityConstants.DEPARTMENT_ID_PREFIX
+import de.kordondev.attendee.core.security.SecurityConstants.ROLE_PREFIX
+import de.kordondev.attendee.core.security.SecurityConstants.USER_ID_PREFIX
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -18,7 +22,7 @@ class AuthorityService {
                 .authentication
                 .authorities
                 .map { it.authority }
-                .any { role -> role == department.id.toString() || allowedRoles.any { it.toString() == role } }
+                .any { authority -> authority == DEPARTMENT_ID_PREFIX + department.id.toString() || allowedRoles.any { ROLE_PREFIX + it.toString() == authority } }
     }
 
     fun hasAuthorityFilter(attendee: Attendee, allowedRoles: List<Roles>): Boolean {
@@ -46,6 +50,33 @@ class AuthorityService {
         throw AccessDeniedException("You are not allowed to change attendees from other departments")
     }
 
+    fun hasAuthority(user: User, allowedRoles: List<Roles>): User {
+        if (hasRole(allowedRoles) || hasUserId(user.id)) {
+            return user
+        }
+        throw AccessDeniedException("You are not allowed to change another user")
+    }
+
+    fun hasUserId(userId: Long): Boolean {
+        return SecurityContextHolder
+                .getContext()
+                .authentication
+                .authorities
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch { it == USER_ID_PREFIX + userId.toString() }
+    }
+
+    fun hasRole(allowedRoles: List<Roles>):Boolean {
+        return SecurityContextHolder
+                .getContext()
+                .authentication
+                .authorities
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch { authority -> allowedRoles.any {authority == ROLE_PREFIX + it.toString()} }
+    }
+
     fun isAdminFilter(): Boolean {
         return SecurityContextHolder
                 .getContext()
@@ -53,7 +84,7 @@ class AuthorityService {
                 .authorities
                 .stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch { it == Roles.ADMIN.toString() }
+                .anyMatch { it == ROLE_PREFIX + Roles.ADMIN.toString() }
     }
 
     fun isAdmin() {
@@ -69,7 +100,7 @@ class AuthorityService {
                 .authorities
                 .stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch { it == Roles.SPECIALIZED_FIELD_DIRECTOR.toString() || it == Roles.ADMIN.toString() }
+                .anyMatch { it == ROLE_PREFIX + Roles.SPECIALIZED_FIELD_DIRECTOR.toString() || it == ROLE_PREFIX + Roles.ADMIN.toString() }
     }
 
     fun isSpecializedFieldDirector() {

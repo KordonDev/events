@@ -23,5 +23,8 @@ class ExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     fun handleAccessDeniedException() {}
 
+    @ExceptionHandler(BadRequestException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleBadRequestException() {}
 
 }
