@@ -10,6 +10,7 @@ import de.kordondev.attendee.core.persistence.entry.Roles
 import de.kordondev.attendee.core.persistence.entry.UserEntry
 import de.kordondev.attendee.core.persistence.repository.UserRepository
 import de.kordondev.attendee.core.security.AuthorityService
+import de.kordondev.attendee.core.security.SecurityConstants.USER_ID_PREFIX
 import de.kordondev.attendee.exception.NotFoundException
 import de.kordondev.attendee.exception.ResourceAlreadyExistsException
 import org.springframework.data.repository.findByIdOrNull
@@ -25,6 +26,18 @@ class UserService (
         private val bCryptPasswordEncoder: BCryptPasswordEncoder
     ) {
 
+    fun getMe(): User {
+        val userIdWithPrefix = authorityService.getUserId();
+        if (userIdWithPrefix.isPresent) {
+            val userId = userIdWithPrefix.get().replace(USER_ID_PREFIX,"")
+            return userRepository.findByIdOrNull(userId.toLong())
+                    ?.let { it.copy(passWord = "") }
+                    ?.let{ UserEntry.to(it) }
+                ?: throw NotFoundException("user with id ${userId} not found")
+        } else {
+            throw NotFoundException("No userId in token")
+        }
+    }
 
     fun createUser(user: NewUser) : User {
         authorityService.isAdmin()
@@ -34,6 +47,7 @@ class UserService (
         val userWithEncryptedPassword = user.copy(passWord = bCryptPasswordEncoder.encode(user.passWord))
         return userRepository
                 .save(UserEntry.of(userWithEncryptedPassword))
+                .let { it.copy(passWord = "") }
                 .let { savedUser -> UserEntry.to(savedUser) }
                 .also { sendEmail(it)}
     }
@@ -43,6 +57,7 @@ class UserService (
         return userRepository.findByIdOrNull(userToChange.id)
                 ?.let { it.copy(passWord = bCryptPasswordEncoder.encode(userToChange.passWord)) }
                 ?.let { userRepository.save(it) }
+                ?.let { it.copy(passWord = "") }
                 ?.let{ UserEntry.to(it)}
             ?: throw NotFoundException("user with id ${userToChange.id} not found")
     }

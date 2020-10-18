@@ -12,6 +12,7 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service("authorityService")
 class AuthorityService {
@@ -58,13 +59,22 @@ class AuthorityService {
     }
 
     fun hasUserId(userId: Long): Boolean {
+        val userId = getUserId()
+        if (userId.isEmpty) {
+            return false;
+        }
+        return userId.get() == USER_ID_PREFIX + userId.toString()
+    }
+
+    fun getUserId(): Optional<String> {
         return SecurityContextHolder
                 .getContext()
                 .authentication
                 .authorities
                 .stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch { it == USER_ID_PREFIX + userId.toString() }
+                .filter { it.startsWith(USER_ID_PREFIX)}
+                .findFirst()
     }
 
     fun hasRole(allowedRoles: List<Roles>):Boolean {

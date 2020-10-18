@@ -33,6 +33,11 @@ const routes: Array<RouteConfig> = [
     path: "/files",
     name: "Registrierungsunterlagen",
     component: () => import("../components/RegistrationFiles.vue")
+  },
+  {
+    path: "/feuerwehr",
+    name: "Meine Feuerwehr",
+    component: () => import("../components/EditDepartments.vue")
   }
 ];
 
