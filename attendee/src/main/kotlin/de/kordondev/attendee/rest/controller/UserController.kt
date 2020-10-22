@@ -22,6 +22,14 @@ class UserController (
                 .let { RestUser.of(it)}
     }
 
+    @GetMapping("/users/department/{id}")
+    fun getUserForDepartment(@PathVariable("id") id: Long): RestUser {
+        val department = departmentService.getDepartment(id)
+        return userService
+                .getUserForDepartment(department)
+                .let { RestUser.of(it) }
+    }
+
     @PostMapping("/users")
     fun addUser(@RequestBody(required = true) @Valid user: RestUserRequest): RestUser {
         val department = departmentService.getDepartment(user.departmentId)
@@ -44,8 +52,11 @@ class UserController (
     }
 
     @PostMapping("/users/{id}/sendRegistrationEmail")
-    fun sendRegistrationEmail(@RequestBody(required = true) @Valid user: RestUserRequest, @PathVariable("id") id: Long) {
-        val department = departmentService.getDepartment(user.departmentId)
-        userService.sendEmail(RestUserRequest.to(user, id, department))
+    fun sendRegistrationEmail(@PathVariable("id") id: Long): RestUser {
+        val user = userService.getUser(id)
+        return userService
+                .updatePasswordAndSendEmail(user)
+                .let { RestUser.of(it) }
     }
+
 }

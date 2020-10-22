@@ -1,25 +1,10 @@
 <template>
   <div>
     <h1>Deine Feuerwehr</h1>
-    <h2>{{ myDepartment.name }}</h2>
-    <form v-on:submit.prevent="updateDepartment(myDepartment.id)">
-      <v-text-field
-        v-model="myDepartment.leaderName"
-        label="Jugendwart"
-        required
-      />
-      <v-text-field
-        type="email"
-        v-model="myDepartment.leaderEMail"
-        label="Jugendwart Email"
-        required
-      />
-      <v-container>
-        <v-row justify="end">
-          <v-btn color="primary" type="submit">Speichern</v-btn>
-        </v-row>
-      </v-container>
-    </form>
+    <div v-if="myDepartment.id">
+      <h2>{{ myDepartment.name }}</h2>
+      <EditDepartment :department="myDepartment" />
+    </div>
 
     <form v-on:submit.prevent="updateUser()">
       <v-text-field
@@ -58,30 +43,15 @@
       </v-container>
     </form>
 
-    <div v-if="hasAdministrationRole()">
+    <div v-if="hasAdministrationRole() && departments.length > 0">
       <h2>Andere Feuerwehren</h2>
       <div v-for="department in departments" :key="department.id">
         <h3>{{ department.name }}</h3>
-        <form v-on:submit.prevent="updateDepartment(department.id)">
-          <v-text-field
-            v-model="department.leaderName"
-            label="Jugendwart"
-            required
-          />
-          <v-text-field
-            type="email"
-            v-model="department.leaderEMail"
-            label="Jugendwart Email"
-            required
-          />
-          <v-container>
-            <v-row justify="end">
-              <v-btn color="primary" type="submit">Speichern</v-btn>
-            </v-row>
-          </v-container>
-        </form>
+        <EditDepartment :department="department" />
       </div>
+    </div>
 
+    <div v-if="hasAdministrationRole()">
       <h2>Feuerwehr hinzufügen</h2>
     </div>
   </div>
@@ -90,8 +60,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Watch } from "vue-property-decorator";
-
-import FileList from "./FileList.vue";
+import EditDepartment from "./EditDepartment.vue";
 
 import { hasAdministrationRole } from "../services/authentication";
 import {
@@ -106,9 +75,9 @@ import {
 import { changePassword, User, getMe } from "../services/user";
 
 @Component({
-  components: { FileList }
+  components: { EditDepartment }
 })
-export default class RegistrationFiles extends Vue {
+export default class ListDepartment extends Vue {
   myDepartment: Department = {} as Department;
   departments: Department[] = [];
   loadingChangeDepartmentId = -1;

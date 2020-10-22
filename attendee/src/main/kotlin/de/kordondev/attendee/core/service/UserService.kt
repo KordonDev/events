@@ -1,15 +1,14 @@
 package de.kordondev.attendee.core.service
 
 import de.kordondev.attendee.core.mail.MailSenderService
-import de.kordondev.attendee.core.model.Attendee
-import de.kordondev.attendee.core.model.NewAttendee
-import de.kordondev.attendee.core.model.NewUser
-import de.kordondev.attendee.core.model.User
+import de.kordondev.attendee.core.model.*
 import de.kordondev.attendee.core.persistence.entry.AttendeeEntry
+import de.kordondev.attendee.core.persistence.entry.DepartmentEntry
 import de.kordondev.attendee.core.persistence.entry.Roles
 import de.kordondev.attendee.core.persistence.entry.UserEntry
 import de.kordondev.attendee.core.persistence.repository.UserRepository
 import de.kordondev.attendee.core.security.AuthorityService
+import de.kordondev.attendee.core.security.PasswordGenerator
 import de.kordondev.attendee.core.security.SecurityConstants.USER_ID_PREFIX
 import de.kordondev.attendee.exception.NotFoundException
 import de.kordondev.attendee.exception.ResourceAlreadyExistsException
@@ -30,13 +29,26 @@ class UserService (
         val userIdWithPrefix = authorityService.getUserId();
         if (userIdWithPrefix.isPresent) {
             val userId = userIdWithPrefix.get().replace(USER_ID_PREFIX,"")
-            return userRepository.findByIdOrNull(userId.toLong())
-                    ?.let { it.copy(passWord = "") }
-                    ?.let{ UserEntry.to(it) }
-                ?: throw NotFoundException("user with id ${userId} not found")
+            return getUser(userId.toLong())
         } else {
             throw NotFoundException("No userId in token")
         }
+    }
+
+    fun getUser(id: Long): User {
+        return userRepository.findByIdOrNull(id)
+                ?.let { it.copy(passWord = "") }
+                ?.let{ UserEntry.to(it) }
+                ?: throw NotFoundException("user with id ${id} not found")
+    }
+
+    fun getUserForDepartment(department: Department) : User {
+        val user = userRepository.findOneByDepartment(DepartmentEntry.of(department))
+                ?.let { UserEntry.to(it) }
+            ?: throw NotFoundException("user for department id ${department.id} not found")
+
+        authorityService.hasAuthority(user, listOf(Roles.ADMIN, Roles.SPECIALIZED_FIELD_DIRECTOR))
+        return user
     }
 
     fun createUser(user: NewUser) : User {
@@ -49,7 +61,7 @@ class UserService (
                 .save(UserEntry.of(userWithEncryptedPassword))
                 .let { it.copy(passWord = "") }
                 .let { savedUser -> UserEntry.to(savedUser) }
-                .also { sendEmail(it)}
+                .also { sendEmail(it, user.passWord)}
     }
 
     fun saveUpdatePassword(userToChange: User): User {
@@ -62,13 +74,20 @@ class UserService (
             ?: throw NotFoundException("user with id ${userToChange.id} not found")
     }
 
-    fun sendEmail(user: User) {
+    fun updatePasswordAndSendEmail(user: User): User {
+        authorityService.hasAuthority(user, listOf(Roles.ADMIN, Roles.SPECIALIZED_FIELD_DIRECTOR))
+        val newPassword = PasswordGenerator.generatePassword()
+        return saveUpdatePassword(user.copy(passWord = newPassword))
+                .also { sendEmail(it, newPassword) }
+    }
+
+    private fun sendEmail(user: User, password: String) {
         authorityService.hasAuthority(user, listOf(Roles.ADMIN, Roles.SPECIALIZED_FIELD_DIRECTOR))
         mailSenderService.sendRegistrationMail(
                 to = user.department.leaderEMail,
                 leaderName = user.department.leaderName,
                 username = user.userName,
-                password = user.passWord
+                password = password
         )
     }
 }

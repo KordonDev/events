@@ -130,7 +130,7 @@
               >
                 <v-icon medium @click.prevent="deleteAttendee(item)">
                   mdi-delete
-                  </v-icon>
+                </v-icon>
               </span>
               <span v-if="deletingAttendees.includes(item.id)">
                 <v-progress-circular indeterminate :size="24" color="green" />

@@ -37,7 +37,7 @@ const routes: Array<RouteConfig> = [
   {
     path: "/feuerwehr",
     name: "Meine Feuerwehr",
-    component: () => import("../components/EditDepartments.vue")
+    component: () => import("../components/ListDepartment.vue")
   }
 ];
 
