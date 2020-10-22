@@ -53,6 +53,7 @@
 
     <div v-if="hasAdministrationRole()">
       <h2>Feuerwehr hinzufügen</h2>
+      <AddDepartment />
     </div>
   </div>
 </template>
@@ -61,6 +62,7 @@
 import Vue from "vue";
 import { Component, Watch } from "vue-property-decorator";
 import EditDepartment from "./EditDepartment.vue";
+import AddDepartment from "./AddDepartment.vue";
 
 import { hasAdministrationRole } from "../services/authentication";
 import {
@@ -75,7 +77,7 @@ import {
 import { changePassword, User, getMe } from "../services/user";
 
 @Component({
-  components: { EditDepartment }
+  components: { EditDepartment, AddDepartment }
 })
 export default class ListDepartment extends Vue {
   myDepartment: Department = {} as Department;

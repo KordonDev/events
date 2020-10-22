@@ -52,7 +52,10 @@ class UserService (
     }
 
     fun createUser(user: NewUser) : User {
-        authorityService.isAdmin()
+        authorityService.isSpecializedFieldDirector()
+        if (user.role != Roles.USER) {
+            authorityService.isAdmin()
+        }
         userRepository
                 .findOneByUserName(user.userName)
                 ?.let { throw ResourceAlreadyExistsException("Username already exists") }

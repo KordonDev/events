@@ -24,3 +24,10 @@ export const sendRegistrationMail = (userId: String) =>
 
 export const userForDepartment = (departmentId: string) =>
   getData<User>(`users/department/${departmentId}`, withAuthenticationHeader());
+
+export const createUser = (departmentId: string, username: string) =>
+  postData<User>(`users`, withAuthenticationHeader(), {
+    departmentId,
+    username,
+    role: "USER"
+  });

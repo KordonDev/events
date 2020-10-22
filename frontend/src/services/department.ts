@@ -1,4 +1,4 @@
-import { getData, putData } from "../helper/fetch";
+import { getData, postData, putData } from "../helper/fetch";
 import { withAuthenticationHeader, getTokenData } from "./authentication";
 
 export const getDepartments = () =>
@@ -14,6 +14,17 @@ export const getMyDepartment = () => {
 
 export const updateDepartment = (department: Department) =>
   putData<Department>(`departments/${department.id}`, withAuthenticationHeader(), department);
+
+export const createDepartment = (
+  name: string,
+  leaderName: string,
+  leaderEMail: string
+) =>
+  postData<Department>(`departments`, withAuthenticationHeader(), {
+    name,
+    leaderName,
+    leaderEMail
+  });
 
 export interface Department {
   id: string;
