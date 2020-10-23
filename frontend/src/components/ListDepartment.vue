@@ -89,7 +89,6 @@ export default class ListDepartment extends Vue {
   passwordLoading = false;
   passwordSuccess = false;
   user: User = {} as User;
-  // TODO: Show errors
   showPasswordError = false;
   errorMessage = "";
 
@@ -124,6 +123,13 @@ export default class ListDepartment extends Vue {
         console.log(error);
         this.errorMessage = error;
       });
+  }
+
+  onDepartmentCreated(department: Department) {
+    if (this.departments.find(dep => dep.id === department.id)) {
+      return;
+    }
+    this.departments.push(department);
   }
 
   @Watch("password")

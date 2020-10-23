@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="!error">
     <form v-on:submit.prevent="updateDepartment()">
       <v-text-field v-model="department.leaderName" label="Jugendwart" required />
       <v-text-field
@@ -79,6 +79,7 @@ import {
 @Component({})
 export default class EditDepartment extends Vue {
   @Prop() department!: Department;
+  error = false;
 
   loading: boolean = false;
   saved: boolean = false;
@@ -97,7 +98,6 @@ export default class EditDepartment extends Vue {
   sendRegistrationEmail() {
     this.sendingEmail = true;
     sendRegistrationMail(this.user.id).then(() => {
-      console.log('success')
       this.emailSent = true;
       this.sendingEmail = false;
     });
@@ -113,7 +113,9 @@ export default class EditDepartment extends Vue {
   }
 
   mounted() {
-    userForDepartment(this.department.id).then(user => (this.user = user));
+    userForDepartment(this.department.id)
+      .then(user => (this.user = user))
+      .catch(() => (this.error = true));
   }
 }
 </script>

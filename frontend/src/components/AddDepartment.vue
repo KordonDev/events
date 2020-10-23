@@ -1,7 +1,11 @@
 <template>
   <div class="mb-10">
     <form v-on:submit.prevent="createUser()">
-      <v-text-field v-model="departmentName" label="Name der Feuerwehr" required />
+      <v-text-field
+        v-model="departmentName"
+        label="Name der Feuerwehr"
+        required
+      />
       <v-text-field v-model="leaderName" label="Jugendwart" required />
       <v-text-field
         v-model="leaderMail"
@@ -10,6 +14,9 @@
         required
       />
       <v-text-field v-model="username" label="Benutzername" required />
+      <v-alert v-if="error" type="error">
+        Es gab einen Fehler beim erzeugen des Benutzers
+      </v-alert>
       <v-row justify="end">
         <v-btn color="primary" :loading="loading" type="submit">
           <span v-if="created">
@@ -26,7 +33,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 
 import {
   // eslint-disable-next-line no-unused-vars
@@ -42,6 +49,8 @@ import {
 
 @Component({})
 export default class AddDepartment extends Vue {
+  @Prop() onDepartmentCreated!: (department: Department) => void;
+
   departmentName = "";
   leaderName = "";
   leaderMail = "";
@@ -49,16 +58,30 @@ export default class AddDepartment extends Vue {
 
   loading: boolean = false;
   created: boolean = false;
+  error: boolean = false;
 
   createUser() {
     this.loading = true;
+    this.error = false;
+    let newDepartment: Department;
     createDepartment(this.departmentName, this.leaderName, this.leaderMail)
-      .then(department => createUser(department.id, this.username))
+      .then(department => {
+        newDepartment = department;
+        return createUser(department.id, this.username);
+      })
       .then(() => {
         this.loading = false;
         this.created = true;
+        this.onDepartmentCreated(newDepartment);
+        this.departmentName = "";
+        this.leaderName = "";
+        this.leaderMail = "";
+        this.username = "";
       })
-      .catch(() => (this.loading = false));
+      .catch(() => {
+        this.loading = false;
+        this.error = true;
+      });
   }
 }
 </script>
