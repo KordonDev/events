@@ -39,7 +39,7 @@ class UserService (
         return userRepository.findByIdOrNull(id)
                 ?.let { it.copy(passWord = "") }
                 ?.let{ UserEntry.to(it) }
-                ?: throw NotFoundException("user with id ${id} not found")
+                ?: throw NotFoundException("user with id $id not found")
     }
 
     fun getUserForDepartment(department: Department) : User {
