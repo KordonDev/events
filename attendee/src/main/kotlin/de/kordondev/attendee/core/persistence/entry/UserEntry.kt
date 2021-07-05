@@ -39,6 +39,16 @@ data class UserEntry (
                     department = DepartmentEntry.of(user.department)
             )
         }
+
+        fun of(user: User): UserEntry {
+            return UserEntry(
+                id = user.id,
+                role = user.role,
+                userName = user.userName,
+                passWord = user.passWord,
+                department = DepartmentEntry.of(user.department)
+            )
+        }
     }
 }
 

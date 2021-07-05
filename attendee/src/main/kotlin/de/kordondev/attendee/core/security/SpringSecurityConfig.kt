@@ -27,6 +27,8 @@ class SpringSecurityConfig(
                 .authorizeRequests()
                 .antMatchers("/attendees/**").authenticated()
                 .antMatchers("/departments/**").authenticated()
+                .antMatchers("/users/**").authenticated()
+                .antMatchers(("/login")).permitAll()
                 .and()
                 .addFilter(JWTAuthenticationFilter(authenticationManager(), userRepository))
                 .addFilter(JWTAuthorizationFilter(authenticationManager(), userRepository))
